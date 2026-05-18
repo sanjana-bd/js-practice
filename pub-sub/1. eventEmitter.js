@@ -20,7 +20,7 @@ class PubSub {
     }
 
     subscribe(event, callback) {
-        if(!event || !callback) return ;
+        if(!event || !callback || typeof callback !== 'function') return ;
         if(!this.eventStore[event]) this.eventStore[event] = [callback];
         else this.eventStore[event].push(callback);
     }
@@ -31,9 +31,11 @@ class PubSub {
     }
 
     unsubscribe(event, callback) {
-        if(!this.isValidEvent(event) || !callback) return ;
+        if(!this.isValidEvent(event) || !callback || typeof callback !== 'function') return ;
+        // for larger sets, Set can be used to reduce the complexity
         const remainingCallbacks = this.eventStore[event]?.filter(cb => cb !== callback);
-        this.eventStore[event] = remainingCallbacks;
+        if(remainingCallbacks.length) this.eventStore[event] = remainingCallbacks;
+        else delete this.eventStore[event];
     }
 }
 
